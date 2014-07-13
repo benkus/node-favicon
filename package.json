@@ -10,6 +10,9 @@
   { "name": "sentientwaffle"
   , "url":  "http://sentientwaffle.github.com/"
   }
+, "contributors": [
+     "Ben Kus"
+ ]
 
 , "main": "./index"
 , "scripts":
