@@ -53,6 +53,8 @@ module.exports = function(url, callback) {
             ico = p.protocol + ico;
           } else if (ico[0] == "/") {
             ico = root + ico;
+          } else if (ico.substring(0, 4) != 'http') {
+            ico = root + "/" + ico;
           }
           icons.push(ico);
         }
@@ -105,7 +107,7 @@ module.exports = function(url, callback) {
 // Internal: Check the status code.
 function does_it_render(url, callback) {
   request({ url: url, 
-            timeout: 4000,
+            timeout: 5000,
           }, function(err, res, body) {
     if (err) return callback(err);
     callback(null, res.statusCode == 200);
