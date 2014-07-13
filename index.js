@@ -5,17 +5,30 @@ var request = require('request')
 // Public: Find the URL of a web site's favicon.
 // 
 // url      - The String web site URL.
-// callback - Receives `(err, favicon_url)`. `favicon_url` will be a
-//            String if an icon is discovered, and `null` otherwise.
+// callback - Receives `(err, favicon_url, all_favicon_urls)`. 
+//            `favicon_url` will be the url of the "best" favicon found (if any icon is discovered),
+//             and `null` otherwise.
+//            `all_favicon_url` will be all the urls of the favicons found,
+//             and `null` otherwise.
 // 
 // Examples:
 // 
-//   favicon("http://nodejs.org/", function(err, favicon_url) {
+//   favicon("http://nodejs.org/", function(err, favicon_url, all_favicons_urls) {
 //     
 //   });
 // 
 // Returns Nothing.
 module.exports = function(url, callback) {
+
+  if (!url || url == '') {
+    return callback("Invalid URL");
+  }
+  
+  url = url.trim();
+  if (!url.match(new RegExp('://'))) {
+    url = "http://" + url;
+  }
+
   var p    = Url.parse(url)
     , root = p.protocol + "//" + p.host
     , defaultIco  = root + "/favicon.ico";
@@ -31,6 +44,7 @@ module.exports = function(url, callback) {
       var link_re = /<link (.*)>/gi
         , href_re = /href=["']([^"']*)["']/i
         , match, ico_match;
+      var icons = [];
 
       while (match = link_re.exec(body)) {
         if (rel_re.test(match[1]) && (ico_match = href_re.exec(match[1]))) {
@@ -40,30 +54,49 @@ module.exports = function(url, callback) {
           } else if (ico[0] == "/") {
             ico = root + ico;
           }
-          return ico;
+          icons.push(ico);
         }
       }
-      return false;
+      if (icons.length == 0) {
+        return false;  
+      } else {
+        return icons;
+      }
+      
     }
 
     request(root, function(err, res, body) {
-      // var icons = [];
       var apple_rel_re  = /rel=["'][^"]*apple-touch-icon[^"']*["']/i;
       var rel_re  = /rel=["'][^"]*icon[^"']*["']/i;
       var ico;
+      var icons = [];
+
       // check for apple icons first
-      ico = checkLinks(apple_rel_re, body);
-      if (ico) return callback(null, ico);
+      var apple_icons = checkLinks(apple_rel_re, body);
+      if (apple_icons) 
+        icons = icons.concat(apple_icons);
 
       // then check for regular icons
-      ico = checkLinks(rel_re, body);
-      if (ico) return callback(null, ico);
+      var other_icons = checkLinks(rel_re, body);
+      if (other_icons) 
+        icons = icons.concat(other_icons);
 
       // then check for /favicon.ico
-      if (renders) return callback(null, defaultIco);
+      if (renders) {
+        icons.push(defaultIco);
+      }
 
-      // No favicon could be found.
-      return callback(null, null);
+      if (icons.length == 0) {
+        // No favicon could be found.
+        return callback(null, null, null);
+      }
+
+      // remove duplicate icons
+      var uniqueIcons = icons.filter(function(elem, pos) {
+        return icons.indexOf(elem) == pos;
+      }); 
+
+      return callback(null, uniqueIcons[0], uniqueIcons);
     });
   });
 };
@@ -71,7 +104,9 @@ module.exports = function(url, callback) {
 
 // Internal: Check the status code.
 function does_it_render(url, callback) {
-  request(url, function(err, res, body) {
+  request({ url: url, 
+            timeout: 4000,
+          }, function(err, res, body) {
     if (err) return callback(err);
     callback(null, res.statusCode == 200);
   });
