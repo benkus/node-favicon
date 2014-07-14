@@ -2,6 +2,23 @@ var should  = require('should')
   , favicon = require(__dirname + '/../');
 
 describe("favicon", function() {
+
+  it("fails properly when the url is unavailable", function(done) {
+    favicon("http://asdfadsafasfas.com", function(err, url) {
+      should.exist(err);
+      should.not.exist(url);
+      done();
+    });
+  });
+
+  it("allFavicons fails properly when the url is unavailable", function(done) {
+    favicon.allFavicons("http://asdfadsafasfas.com", function(err, allFavicons) {
+      should.exist(err);
+      should.not.exist(allFavicons);
+      done();
+    });
+  });
+
   it("discovers a favicon.ico in the web site root", function(done) {
     favicon("http://nodejs.org/", function(err, url) {
       if (err) return done(err);

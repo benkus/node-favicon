@@ -3,27 +3,14 @@ var request     = require('request')
 var imageinfo   = require('imageinfo');
 
 
-// Public: Find the URL of a web site's favicon.
-// 
-// url      - The String web site URL.
-// callback - Receives `(err, favicon_url, all_favicon_urls)`. 
-//            `favicon_url` will be the url of the "best" favicon found (if any icon is discovered),
-//             and `null` otherwise.
-//            `all_favicon_url` will be all the urls of the favicons found,
-//             and `null` otherwise.
-// 
-// Examples:
-// 
-//   favicon("http://nodejs.org/", function(err, favicon_url, all_favicons_urls) {
-//     
-//   });
-// 
-// Returns Nothing.
 module.exports = function(url, callback) {
   getFavicons(url, function(err, favicons) {
-    callback(err, favicons[0].url);
+    if (favicons && favicons.length > 0) {
+      callback(err, favicons[0].url);
+    } else {
+      callback(err, null);
+    }
   });
-
 }
 
 module.exports.allFavicons = function(url, callback) {
