@@ -171,7 +171,7 @@ function extractImageData(favIconResponse) {
     if (info.mimeType) {
       imageData.format = info.mimeType;
     } else if (imageData.url.substr(-3).toLowerCase() === "ico") {
-       imageData.format = "icon";
+       imageData.format = "image/x-icon";
     }
     imageData.size = data.length;
     imageData.width = info.width;

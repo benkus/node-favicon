@@ -59,12 +59,12 @@ Often websites have several favicon images in different formats and different si
 		  },
 		  {
 		    "url": "https://assets-cdn.github.com/favicon.ico",
-		    "format": "icon",
+		    "format": "image/x-icon",
 		    "size": 6518
 		  },
 		  {
 		    "url": "https://github.com/favicon.ico",
-		    "format": "icon",
+		    "format": "image/x-icon",
 		    "size": 6518
 		  }
 		]
