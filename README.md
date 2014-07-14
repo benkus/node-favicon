@@ -33,40 +33,40 @@ Often websites have several favicon images in different formats and different si
       // ...
     });
 
-Results in:
-[
-  {
-    "url": "https://github.com/fluidicon.png",
-    "format": "image/png",
-    "size": 40976,
-    "height": 512,
-    "width": 512
-  },
-  {
-    "url": "https://github.com/apple-touch-icon-144.png",
-    "format": "image/png",
-    "size": 3200,
-    "height": 144,
-    "width": 144
-  },
-  {
-    "url": "https://github.com/apple-touch-icon-114.png",
-    "format": "image/png",
-    "size": 2679,
-    "height": 114,
-    "width": 114
-  },
-  {
-    "url": "https://assets-cdn.github.com/favicon.ico",
-    "format": "icon",
-    "size": 6518
-  },
-  {
-    "url": "https://github.com/favicon.ico",
-    "format": "icon",
-    "size": 6518
-  }
-]
+`allFavicons` will contain:
+		[
+		  {
+		    "url": "https://github.com/fluidicon.png",
+		    "format": "image/png",
+		    "size": 40976,
+		    "height": 512,
+		    "width": 512
+		  },
+		  {
+		    "url": "https://github.com/apple-touch-icon-144.png",
+		    "format": "image/png",
+		    "size": 3200,
+		    "height": 144,
+		    "width": 144
+		  },
+		  {
+		    "url": "https://github.com/apple-touch-icon-114.png",
+		    "format": "image/png",
+		    "size": 2679,
+		    "height": 114,
+		    "width": 114
+		  },
+		  {
+		    "url": "https://assets-cdn.github.com/favicon.ico",
+		    "format": "icon",
+		    "size": 6518
+		  },
+		  {
+		    "url": "https://github.com/favicon.ico",
+		    "format": "icon",
+		    "size": 6518
+		  }
+		]
 
 ## License
 
