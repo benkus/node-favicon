@@ -135,11 +135,12 @@ function getFavicons(url, callback) {
 
 function extractImageData(favIconResponse) {
   var imageData = {
-    url      : '',
-    format   : '',
-    size     : 0,
-    height   : 0,
-    width    : 0,
+    url       : '',
+    format    : '',
+    size      : 0,
+    height    : 0,
+    width     : 0,
+    base64img : '',
   };
 
   imageData.url = favIconResponse.url;
@@ -156,6 +157,7 @@ function extractImageData(favIconResponse) {
     imageData.size = data.length;
     imageData.width = info.width;
     imageData.height = info.height;
+    imageData.base64img = data.toString('base64');
   }
   return imageData;
 }
