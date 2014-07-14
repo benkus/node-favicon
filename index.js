@@ -1,5 +1,6 @@
-var request = require('request')
-  , Url     = require('url');
+var request     = require('request')
+  , Url         = require('url');
+var imageinfo   = require('imageinfo');
 
 
 // Public: Find the URL of a web site's favicon.
@@ -19,6 +20,19 @@ var request = require('request')
 // 
 // Returns Nothing.
 module.exports = function(url, callback) {
+  getFavicons(url, function(err, favicons) {
+    callback(err, favicons[0].url);
+  });
+
+}
+
+module.exports.allFavicons = function(url, callback) {
+  getFavicons(url, function(err, favicons) {
+    callback(err, favicons);
+  });
+}
+
+function getFavicons(url, callback) {
 
   if (!url || url == '') {
     return callback("Invalid URL");
@@ -90,19 +104,81 @@ module.exports = function(url, callback) {
 
       if (icons.length == 0) {
         // No favicon could be found.
-        return callback(null, null, null);
+        return callback(null, null);
       }
 
       // remove duplicate icons
-      var uniqueIcons = icons.filter(function(elem, pos) {
+      var urls = icons.filter(function(elem, pos) {
         return icons.indexOf(elem) == pos;
       }); 
 
-      return callback(null, uniqueIcons[0], uniqueIcons);
+      // get info for each image
+      var faviconsInfo = [];
+      var responses = [];
+      var completed_requests = 0;
+      for (var i=0; i<urls.length; i++) {
+        request({ url: urls[i], 
+                  encoding: null,
+                  timeout: 5000, 
+                }, function(err, res, body) {
+          if (res && body) {
+            responses.push({
+              url: res.request.uri.href, 
+              err: err, 
+              res: res, 
+              body: body
+            });
+          }
+          completed_requests++;
+
+          if (completed_requests == urls.length) { 
+            // got all the images, now process them
+            for (var j=0; j<responses.length; j++) {
+              if (responses[j].res.statusCode == 200) { // ignore broken favicon urls
+                var imageData = extractImageData(responses[j]);
+                if (imageData.format !== '' ) { // ignore formats we don't recognize
+                  faviconsInfo.push(imageData);
+                }
+              }
+            }
+            // sort by size
+            faviconsInfo = faviconsInfo.sort(compare); 
+            return callback(null, faviconsInfo);
+          }
+        });
+      }
+
+      
     });
   });
 };
 
+function extractImageData(favIconResponse) {
+  var imageData = {
+    url      : '',
+    format   : '',
+    size     : 0,
+    height   : 0,
+    width    : 0,
+  };
+
+  imageData.url = favIconResponse.url;
+  if (favIconResponse.err) {
+    return imageData;
+  } else {
+    var data = favIconResponse.body;
+    var info = imageinfo(data);
+    if (info.mimeType) {
+      imageData.format = info.mimeType;
+    } else if (imageData.url.substr(-3).toLowerCase() === "ico") {
+       imageData.format = "icon";
+    }
+    imageData.size = data.length;
+    imageData.width = info.width;
+    imageData.height = info.height;
+  }
+  return imageData;
+}
 
 // Internal: Check the status code.
 function does_it_render(url, callback) {
@@ -114,3 +190,16 @@ function does_it_render(url, callback) {
   });
 }
 
+function compare(a,b) {
+  if (!a.height && !b.height)
+    return 0;
+  if (!a.height) 
+    return 1;
+  if (!b.height)
+    return -1;
+  if (a.height < b.height)
+     return 1;
+  if (a.height > b.height)
+    return -1;
+  return 0;
+}
