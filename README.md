@@ -34,6 +34,7 @@ Often websites have several favicon images in different formats and different si
     });
 
 `allFavicons` will contain:
+
 		[
 		  {
 		    "url": "https://github.com/fluidicon.png",
